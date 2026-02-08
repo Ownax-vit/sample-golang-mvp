@@ -1,0 +1,211 @@
+basePath: /v1
+definitions:
+  dto.ChatIn:
+    properties:
+      Title:
+        example: Тестовый чат
+        type: string
+    type: object
+  dto.ChatResponse:
+    properties:
+      Id:
+        example: 125216
+        type: integer
+      Title:
+        example: Тестовый чат
+        type: string
+      createdAt:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+    type: object
+  dto.ChatWithMessagesResponse:
+    properties:
+      Id:
+        example: 125216
+        type: integer
+      Title:
+        example: Тестовый чат
+        type: string
+      createdAt:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+      messages:
+        items:
+          $ref: '#/definitions/dto.MessageResponse'
+        type: array
+    type: object
+  dto.MessageIn:
+    properties:
+      Text:
+        example: Hello world!
+        type: string
+    type: object
+  dto.MessageResponse:
+    properties:
+      ChatId:
+        example: 125216
+        type: integer
+      Id:
+        example: 125216
+        type: integer
+      Text:
+        example: Hello world!
+        type: string
+      createdAt:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+    type: object
+host: localhost:8001
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API для управления чатами и сообщениями
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Chat Project API
+  version: "1.0"
+paths:
+  /chats:
+    post:
+      consumes:
+      - application/json
+      description: Создает новый чат с указанным названием
+      parameters:
+      - description: Данные чата
+        in: body
+        name: chat
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChatIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChatResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создать чат
+      tags:
+      - chats
+  /chats/{chatId}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет чат по указанному ID
+      parameters:
+      - description: ID чата
+        in: path
+        name: chatId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Чат успешно удален
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удалить чат
+      tags:
+      - chats
+    get:
+      consumes:
+      - application/json
+      description: Получает информацию о чате со всеми сообщениями
+      parameters:
+      - description: ID чата
+        in: path
+        name: chatId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChatWithMessagesResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить чат
+      tags:
+      - chats
+  /chats/{chatId}/messages:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новое сообщение в указанный чат
+      parameters:
+      - description: ID чата
+        in: path
+        name: chatId
+        required: true
+        type: integer
+      - description: Данные сообщения
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MessageIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Добавить сообщение
+      tags:
+      - chats
+schemes:
+- http
+- https
+swagger: "2.0"

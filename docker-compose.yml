@@ -1,0 +1,26 @@
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+      target: debug
+    env_file:
+      .env
+    ports:
+      - "8001:8001"
+      - "2345:2345"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: '2Gb'
+        reservations:
+          cpus: '0.60'
+          memory: '1Gb'
+    networks:
+      app-net:
+
+
+networks:
+  app-net:
+    driver: bridge

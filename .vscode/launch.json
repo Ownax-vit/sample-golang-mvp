@@ -19,7 +19,11 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/main.go",
-            "args": []
+            "args": [],
+            "env": {
+                "PATH_DOTENV": "${workspaceFolder}/.env",
+                "POSTGRES_MIGRATE_PATH": "file://${workspaceFolder}/migrations"
+            }
         }
     ]
 }

@@ -9,7 +9,6 @@ import (
 )
 
 func Run(cfg *config.Config) {
-	// Application entry point
 	r := gin.Default()
 
 	restapi.NewRouter(r, cfg)

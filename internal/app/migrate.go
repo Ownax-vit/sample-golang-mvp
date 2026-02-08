@@ -29,12 +29,12 @@ func init() {
 	)
 
 	for attempts > 0 {
-		m, err = migrate.New("file://migrations", cfg.Postgres.Url)
+		m, err = migrate.New(cfg.Postgres.MigratePath, cfg.Postgres.Url)
 		if err == nil {
 			break
 		}
 
-		log.Printf("Migrate: postgres is trying to connect, attempts left: %d", attempts)
+		log.Printf("Migrate: postgres is trying to connect, err %s, attempts left: %d", err, attempts)
 		time.Sleep(_defaultTimeout)
 		attempts--
 	}

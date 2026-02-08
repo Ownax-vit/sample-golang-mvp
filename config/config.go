@@ -1,16 +1,16 @@
 package config
 
 import (
-	"fmt"
+	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type (
 	Config struct {
-		App     App
-		HTTP    HTTP
-		Log     Log
+		App      App
+		HTTP     HTTP
+		Log      Log
 		Postgres Postgres
 	}
 
@@ -20,7 +20,7 @@ type (
 	}
 
 	HTTP struct {
-		Port           string `env:"HTTP_PORT,required" env-default:"8001"`
+		Port string `env:"HTTP_PORT,required" env-default:"8001"`
 	}
 
 	Log struct {
@@ -28,17 +28,27 @@ type (
 	}
 
 	Postgres struct {
-		Url string `end:"POSRGRES-URL, required"`
+		Url string `env:"POSTGRES_URL,required"`
+		MigratePath string `env:"POSTGRES_MIGRATE_PATH,required" env-default:"file://migrations"`
 	}
-
 )
 
 // NewConfig returns app config.
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
-	if err := cleanenv.ReadEnv(cfg); err != nil {
-		return nil, fmt.Errorf("config error: %w", err)
+	var err error
+
+	path := os.Getenv("PATH_DOTENV")
+	if path != "" {
+		if err = cleanenv.ReadConfig(path, cfg); err != nil {
+			return nil, err
+		}
+		return cfg, nil
 	}
 
-	return cfg, nil
+	if err = cleanenv.ReadEnv(cfg); err == nil {
+		return cfg, nil
+	}
+
+	return nil, err
 }

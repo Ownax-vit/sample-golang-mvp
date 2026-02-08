@@ -9,16 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -244,6 +235,10 @@ const docTemplate = `{
         "dto.ChatResponse": {
             "type": "object",
             "properties": {
+                "CreatedAt": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
                 "Id": {
                     "type": "integer",
                     "example": 125216
@@ -251,16 +246,16 @@ const docTemplate = `{
                 "Title": {
                     "type": "string",
                     "example": "Тестовый чат"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2024-01-01T12:00:00Z"
                 }
             }
         },
         "dto.ChatWithMessagesResponse": {
             "type": "object",
             "properties": {
+                "CreatedAt": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
                 "Id": {
                     "type": "integer",
                     "example": 125216
@@ -268,10 +263,6 @@ const docTemplate = `{
                 "Title": {
                     "type": "string",
                     "example": "Тестовый чат"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2024-01-01T12:00:00Z"
                 },
                 "messages": {
                     "type": "array",
@@ -297,6 +288,10 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 125216
                 },
+                "CreatedAt": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
                 "Id": {
                     "type": "integer",
                     "example": 125216
@@ -304,10 +299,6 @@ const docTemplate = `{
                 "Text": {
                     "type": "string",
                     "example": "Hello world!"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2024-01-01T12:00:00Z"
                 }
             }
         }
@@ -316,12 +307,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8001",
-	BasePath:         "/v1",
-	Schemes:          []string{"http", "https"},
-	Title:            "Chat Project API",
-	Description:      "API для управления чатами и сообщениями",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
+	Schemes:          []string{},
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

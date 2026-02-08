@@ -1,26 +1,8 @@
 {
-    "schemes": [
-        "http",
-        "https"
-    ],
     "swagger": "2.0",
     "info": {
-        "description": "API для управления чатами и сообщениями",
-        "title": "Chat Project API",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8001",
-    "basePath": "/v1",
     "paths": {
         "/chats": {
             "post": {
@@ -242,6 +224,10 @@
         "dto.ChatResponse": {
             "type": "object",
             "properties": {
+                "CreatedAt": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
                 "Id": {
                     "type": "integer",
                     "example": 125216
@@ -249,16 +235,16 @@
                 "Title": {
                     "type": "string",
                     "example": "Тестовый чат"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2024-01-01T12:00:00Z"
                 }
             }
         },
         "dto.ChatWithMessagesResponse": {
             "type": "object",
             "properties": {
+                "CreatedAt": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
                 "Id": {
                     "type": "integer",
                     "example": 125216
@@ -266,10 +252,6 @@
                 "Title": {
                     "type": "string",
                     "example": "Тестовый чат"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2024-01-01T12:00:00Z"
                 },
                 "messages": {
                     "type": "array",
@@ -295,6 +277,10 @@
                     "type": "integer",
                     "example": 125216
                 },
+                "CreatedAt": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
                 "Id": {
                     "type": "integer",
                     "example": 125216
@@ -302,10 +288,6 @@
                 "Text": {
                     "type": "string",
                     "example": "Hello world!"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2024-01-01T12:00:00Z"
                 }
             }
         }

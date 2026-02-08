@@ -1,12 +1,14 @@
 package v1
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"chat-project/internal/dto"
 	"chat-project/internal/services"
+	"chat-project/internal/storage"
 )
 
 type ChatController struct {
@@ -112,6 +114,10 @@ func (c ChatController) GetChat(ctx *gin.Context) {
 
 	chatResp, err := c.service.GetWithMessages(ctx, chatId)
 	if err != nil {
+		if errors.Is(err, storage.ChatNotFoundError) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "chat not found"})
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

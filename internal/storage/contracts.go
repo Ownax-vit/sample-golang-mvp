@@ -15,3 +15,7 @@ type ChatRepo interface {
 	GetWithMessages(ctx context.Context, chatId int) (domain.Chat, error)
 	DeleteChat(ctx context.Context, chatId int) error
 }
+
+type ChatListener interface {
+	ListenChat(ctx context.Context, chatId int) (<-chan domain.Message, error)
+}

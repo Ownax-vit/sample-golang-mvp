@@ -35,7 +35,7 @@ func (r ChatRepoPostgres) GetChatByID(ctx context.Context, chatId int) (domain.C
 		&chat.ID, &chat.Title, &chat.CreatedAt,
 	)
 	if err != nil {
-		return domain.Chat{}, err
+		return domain.Chat{}, fmt.Errorf("error while getting chat: %s %w", err, storage.ChatNotFoundError)
 	}
 
 	return chat, nil

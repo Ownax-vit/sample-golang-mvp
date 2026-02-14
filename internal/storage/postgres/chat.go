@@ -21,11 +21,16 @@ func NewChatRepoPostgres(pgpool *pgxpool.Pool) *ChatRepoPostgres {
 }
 
 func (r ChatRepoPostgres) CreateChat(ctx context.Context, chat domain.Chat) (domain.Chat, error) {
-	_, err := r.pool.Exec(ctx, "INSERT INTO chats (id, title, created_at) VALUES ($1, $2, $3)", chat.ID, chat.Title, chat.CreatedAt)
+	var id int
+	err := r.pool.QueryRow(
+		ctx, "INSERT INTO chats (title, created_at) VALUES ($1, $2) RETURNING id", chat.Title, chat.CreatedAt,
+	).Scan(&id)
+
 	if err != nil {
 		return domain.Chat{}, err
 	}
 
+	chat.ID = id
 	return chat, nil
 }
 
@@ -42,13 +47,15 @@ func (r ChatRepoPostgres) GetChatByID(ctx context.Context, chatId int) (domain.C
 }
 
 func (r ChatRepoPostgres) AddMessage(ctx context.Context, message domain.Message, chatId int) (domain.Message, error) {
-	_, err := r.pool.Exec(
+	var id int
+	err := r.pool.QueryRow(
 		ctx,
-		"INSERT INTO messages (id, chat_id, text) VALUES ($1, $2, $3)", message.ID, chatId, message.Text,
-	)
+		"INSERT INTO messages (chat_id, text) VALUES ($1, $2) RETURNING id", chatId, message.Text,
+	).Scan(&id)
 	if err != nil {
 		return domain.Message{}, err
 	}
+	message.ID = id
 
 	return message, nil
 }

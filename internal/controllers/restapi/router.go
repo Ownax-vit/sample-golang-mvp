@@ -1,38 +1,19 @@
 package restapi
 
 import (
-	"context"
-	"log"
-
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
-
-	"chat-project/config"
-	v1 "chat-project/internal/controllers/restapi/v1"
-	"chat-project/internal/services"
-	"chat-project/internal/storage/postgres"
 
 	docs "chat-project/docs"
+	v1 "chat-project/internal/controllers/restapi/v1"
+	"chat-project/internal/services"
 
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // NewRouter создает и настраивает роутер для API
-func NewRouter(app *gin.Engine, cfg *config.Config) {
-
-	poolConfig, err := pgxpool.ParseConfig(cfg.Postgres.Url)
-	if err != nil {
-		log.Fatalln("Unable to parse DATABASE_URL:", err)
-	}
-
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		log.Fatalln("Unable to create connection pool:", err)
-	}
-
-	chatRepo := postgres.NewChatRepoPostgres(pgPool)
-	chatController := v1.NewChatController(services.New(chatRepo))
+func NewRouter(app *gin.Engine, service *services.ChatService) {
+	chatController := v1.NewChatController(service)
 	docs.SwaggerInfo.BasePath = "/v1"
 	// Routers
 	apiV1Group := app.Group("/v1")

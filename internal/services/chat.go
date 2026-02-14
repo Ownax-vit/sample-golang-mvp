@@ -11,11 +11,13 @@ import (
 
 type ChatService struct {
 	chatRepo storage.ChatRepo
+	chatListener  storage.ChatListener
 }
 
-func New(chatRepo storage.ChatRepo) *ChatService {
+func New(chatRepo storage.ChatRepo, chatListener storage.ChatListener) *ChatService {
 	return &ChatService{
 		chatRepo: chatRepo,
+		chatListener: chatListener,
 	}
 }
 
@@ -55,6 +57,12 @@ func (c ChatService) AddMessage(ctx context.Context, chatId int, message dto.Mes
 	} else if err != nil {
 		return nil, fmt.Errorf("error while adding message: %w", err)
 	}
+
+	err = c.chatListener.Publish(ctx, chatId, msg)
+	if err != nil {
+		return nil, fmt.Errorf("error while publishing message to chat with id %d: %w", chatId, err)
+	}
+	// TODO transaction manager
 
 	return &dto.MessageResponse{
 		ID:        msg.ID,

@@ -12,6 +12,7 @@ type (
 		HTTP     HTTP
 		Log      Log
 		Postgres Postgres
+		Redis    Redis
 	}
 
 	App struct {
@@ -28,8 +29,14 @@ type (
 	}
 
 	Postgres struct {
-		Url string `env:"POSTGRES_URL,required"`
+		Url         string `env:"POSTGRES_URL,required"`
 		MigratePath string `env:"POSTGRES_MIGRATE_PATH,required" env-default:"file://migrations"`
+	}
+
+	Redis struct {
+		Addr     string `env:"REDIS_ADDR,required" env-default:"localhost:6379" example:"localhost:6379"`
+		Password string `env:"REDIS_PASSWORD,required"`
+		DB       int    `env:"REDIS_DB,required" env-default:"0"`
 	}
 )
 

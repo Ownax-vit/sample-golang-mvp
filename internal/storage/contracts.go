@@ -17,5 +17,6 @@ type ChatRepo interface {
 }
 
 type ChatListener interface {
-	ListenChat(ctx context.Context, chatId int) (<-chan domain.Message, error)
+	Subscribe(ctx context.Context, chatId int) <-chan domain.Message
+	Publish(ctx context.Context, chatId int, message domain.Message) error
 }

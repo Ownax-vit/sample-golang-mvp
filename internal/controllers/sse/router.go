@@ -3,37 +3,21 @@ package sse
 import (
 	"context"
 	"io"
-	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
 
-	"chat-project/config"
 	"chat-project/internal/services"
-	"chat-project/internal/storage"
-	"chat-project/internal/storage/postgres"
 )
 
-var chatManager *services.ChatListenerManager
-
-func NewRouter(app *gin.Engine, cfg *config.Config) {
+func NewRouter(app *gin.Engine, chatManager *services.ChatListenerManager) {
 	router := app.Group("/sse")
-	poolConfig, err := pgxpool.ParseConfig(cfg.Postgres.Url)
-	if err != nil {
-		log.Fatalln("Unable to parse DATABASE_URL:", err)
+
+	sseController := &SSEController{
+		chatManager: chatManager,
 	}
 
-	pgPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		log.Fatalln("Unable to create connection pool:", err)
-	}
-
-	chatListener := storage.NewListenerMock()
-	chatRepo := postgres.NewChatRepoPostgres(pgPool)
-	chatManager = services.NewChatListenerManager(chatRepo, chatListener)
-
-	router.GET("/sse", HeadersMiddleware(), serveHTTP(), func(c *gin.Context) {
+	router.GET("/sse", HeadersMiddleware(), sseController.serveHTTP(), func(c *gin.Context) {
 		v, ok := c.Get("clientChan")
 		if !ok {
 			return
@@ -63,7 +47,11 @@ func HeadersMiddleware() gin.HandlerFunc {
 	}
 }
 
-func serveHTTP() gin.HandlerFunc {
+type SSEController struct {
+	chatManager *services.ChatListenerManager
+}
+
+func (sse *SSEController) serveHTTP() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Initialize client channel
 
@@ -82,7 +70,7 @@ func serveHTTP() gin.HandlerFunc {
 		clientChan := make(services.ClientConn)
 
 		// Send new connection to event server
-		chatListener, err := chatManager.GetChatListener(chatId)
+		chatListener, err := sse.chatManager.GetChatListener(chatId)
 		if err != nil {
 			c.AbortWithStatus(404)
 			return

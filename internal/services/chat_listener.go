@@ -12,29 +12,31 @@ type ClientConn chan domain.Message
 
 // Прослушиватель сообщений в чате, который будет отправлять новые сообщения всем подписанным клиентам
 type ChatListener struct {
-	ChatId int
-	listener     storage.ChatListener
+	ChatId   int
+	listener storage.ChatListener
 
-	NewMessages chan domain.Message
+	messages chan domain.Message
 
 	// New client connections
-	NewClients chan ClientConn
+	newClients chan ClientConn
 
 	// Closed client connections
-	ClosedClients chan ClientConn
+	closedClients chan ClientConn
 
 	// Total client connections
-	TotalClients map[ClientConn]bool
+	totalClients map[ClientConn]bool
+	chatManager  *ChatListenerManager
 }
 
-func NewChatListener(listener storage.ChatListener, chatId int) *ChatListener{
+func NewChatListener(listener storage.ChatListener, chatManager *ChatListenerManager, chatId int) *ChatListener {
 	chatListener := &ChatListener{
 		ChatId:        chatId,
-		listener:            listener,
-		NewMessages:   make(chan domain.Message),
-		NewClients:    make(chan ClientConn),
-		ClosedClients: make(chan ClientConn),
-		TotalClients:  make(map[ClientConn]bool),
+		listener:      listener,
+		messages:      make(chan domain.Message),
+		newClients:    make(chan ClientConn),
+		closedClients: make(chan ClientConn),
+		totalClients:  make(map[ClientConn]bool),
+		chatManager: chatManager,
 	}
 
 	return chatListener
@@ -46,25 +48,20 @@ func (l *ChatListener) StartListening(ctx context.Context) {
 }
 
 func (l *ChatListener) AddClient(ctx context.Context, clientChan ClientConn) {
-	l.NewClients <- clientChan
+	l.newClients <- clientChan
 }
 
 func (l *ChatListener) RemoveClient(ctx context.Context, clientChan ClientConn) {
-	l.ClosedClients <- clientChan
+	l.closedClients <- clientChan
 }
 
 func (l *ChatListener) BroadcastMessage(ctx context.Context, message domain.Message) {
-	l.NewMessages <- message
+	l.messages <- message
 }
 
 // Прослушивание новых сообщений из стораджа
-func (l *ChatListener) ListenStorage(ctx context.Context){
-	messageChan, err := l.listener.ListenChat(ctx, l.ChatId)
-
-	if err != nil {
-		log.Printf("Error listening storage for chat %d: %v", l.ChatId, err)
-		return
-	}
+func (l *ChatListener) ListenStorage(ctx context.Context) {
+	messageChan := l.listener.Subscribe(ctx, l.ChatId)
 
 	for {
 		select {
@@ -82,19 +79,27 @@ func (l *ChatListener) ListenChannels(ctx context.Context) (<-chan domain.Messag
 	for {
 		select {
 		// Add new available client
-		case client := <-l.NewClients:
-			l.TotalClients[client] = true
-			log.Printf("Client added. %d registered clients", len(l.TotalClients))
+		case client := <-l.newClients:
+			l.totalClients[client] = true
+			log.Printf("Client added to chat %d. %d registered clients", l.ChatId, len(l.totalClients))
 
 		// Remove closed client
-		case client := <-l.ClosedClients:
-			delete(l.TotalClients, client)
+		case client := <-l.closedClients:
+			delete(l.totalClients, client)
 			close(client)
-			log.Printf("Removed client. %d registered clients", len(l.TotalClients))
+			log.Printf("Removed client from chatId %d. %d registered clients", l.ChatId, len(l.totalClients))
+
+			if len(l.totalClients) == 0 {
+				err := l.chatManager.CloseChat(l.ChatId)
+				if err != nil {
+					log.Printf("Error while closing chat %d: %v", l.ChatId, err)
+				}
+				return nil, nil
+			}
 
 		// Broadcast message to client
-		case eventMsg := <-l.NewMessages:
-			for clientMessageChan := range l.TotalClients {
+		case eventMsg := <-l.messages:
+			for clientMessageChan := range l.totalClients {
 				select {
 				case clientMessageChan <- eventMsg:
 					log.Printf("Message sent to client")

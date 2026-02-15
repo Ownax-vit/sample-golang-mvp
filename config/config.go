@@ -25,7 +25,7 @@ type (
 	}
 
 	Log struct {
-		Level string `env:"LOG_LEVEL,required" end-default:"INFO"`
+		Level string `env:"LOG_LEVEL,required" env-default:"INFO"`
 	}
 
 	Postgres struct {

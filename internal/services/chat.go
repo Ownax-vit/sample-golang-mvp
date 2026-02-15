@@ -5,6 +5,7 @@ import (
 	"chat-project/internal/dto"
 	"chat-project/internal/storage"
 	"context"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -52,7 +53,7 @@ func (c ChatService) AddMessage(ctx context.Context, chatId int, message dto.Mes
 		chatId,
 	)
 
-	if err != nil && err == storage.ChatNotFoundError {
+	if err != nil && errors.Is(err, storage.ChatNotFoundError) {
 		return nil, fmt.Errorf("error while adding msg to chat with id %d: %w", chatId, err)
 	} else if err != nil {
 		return nil, fmt.Errorf("error while adding message: %w", err)

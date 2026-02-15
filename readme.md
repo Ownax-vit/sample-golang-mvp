@@ -7,7 +7,8 @@ swag init -g ./cmd/main.go
 - [v] swagger
 - [v] docker build
 - [v] postgres storage + migrations
-- [] stream all new messages of chat by sse
+- [v] stream all new messages of chat by sse
+- [] lint
 - [] grpc interface
 - [] validate lib for dto
 - [] tests

@@ -51,6 +51,7 @@ func (c *ChatController) CreateChat(ctx *gin.Context) {
 	)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return 
 	}
 
 	ctx.JSON(http.StatusOK, chatResponse)

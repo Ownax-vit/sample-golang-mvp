@@ -29,7 +29,8 @@ func (l ListenerRedis) Subscribe(ctx context.Context, chatId int) <-chan domain.
 		for {
 			newMsg, err := pubsub.ReceiveMessage(ctx)
 			if err != nil {
-				panic(err)
+				fmt.Printf("Error while receiving message from channel %d: %v", chatId, err)
+				continue
 			}
 
 			var msg domain.Message

@@ -1,7 +1,6 @@
 package sse
 
 import (
-	"context"
 	"io"
 	"strconv"
 
@@ -76,12 +75,10 @@ func (sse *SSEController) serveHTTP() gin.HandlerFunc {
 			return
 		}
 
-		ctx, cancel := context.WithCancel(context.Background())
-		chatListener.AddClient(ctx, clientChan)
+		chatListener.AddClient(c, clientChan)
 
 		go func() {
 			<-c.Request.Context().Done()
-			cancel()
 			chatListener.RemoveClient(c, clientChan)
 		}()
 

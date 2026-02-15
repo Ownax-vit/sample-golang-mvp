@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"chat-project/internal/domain"
@@ -40,7 +41,10 @@ func (r ChatRepoPostgres) GetChatByID(ctx context.Context, chatId int) (domain.C
 		&chat.ID, &chat.Title, &chat.CreatedAt,
 	)
 	if err != nil {
-		return domain.Chat{}, fmt.Errorf("error while getting chat: %s %w", err, storage.ChatNotFoundError)
+		if err == pgx.ErrNoRows {
+			return domain.Chat{}, storage.ChatNotFoundError
+		}
+		return domain.Chat{}, fmt.Errorf("error while getting chat: %w", err,)
 	}
 
 	return chat, nil
